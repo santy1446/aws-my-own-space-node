@@ -1,0 +1,73 @@
+service: aws-my-own-space-node
+frameworkVersion: '3'
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:us-east-1:798753031733:table/NotesTable
+
+functions:
+  addNote:
+    handler: src/notes/addNote.addNote
+    events:
+      - httpApi:
+          path: /notes
+          method: post
+  getNotes:
+    handler: src/notes/getNotes.getNotes
+    events:
+      - httpApi:
+          path: /notes/{email}
+          method: get
+  updateNote:
+    handler: src/notes/updateNote.updateNote
+    events:
+      - httpApi:
+          path: /notes/{email}/{id}
+          method: put
+
+  deleteNote:
+    handler: src/notes/deleteNote.deleteNote
+    events:
+      - httpApi:
+          path: /notes/{email}/{id}
+          method: delete
+  
+
+resources:
+  Resources:
+    NotesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions: 
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: email_user_login
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        KeySchema: # Required
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: email_user_login
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: email_index
+            KeySchema: # Required
+            - AttributeName: email_user_login
+              KeyType: HASH
+            - AttributeName: id
+              KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+
+        TableName: "NotesTable"
+ 
