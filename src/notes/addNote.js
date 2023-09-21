@@ -6,7 +6,7 @@ module.exports.addNote = async (event) => {
     try {
         const dynamodb = new AWS.DynamoDB.DocumentClient();
         const { email_user_login, title, note_body } = JSON.parse(event.body);
-        const createDate = new Date();
+        const createDate = new Date().toISOString();
         const id = v4();
 
         const newNote = {
