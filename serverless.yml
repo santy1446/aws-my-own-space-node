@@ -12,8 +12,18 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:*
+        - dynamodb:Query
       Resource:
         - arn:aws:dynamodb:us-east-1:798753031733:table/NotesTable
+        - arn:aws:dynamodb:us-east-1:798753031733:table/NotesTable/index/user_index
+  httpApi:
+    authorizers:
+      appJwtAuthorizer:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: https://cognito-idp.us-east-1.amazonaws.com/us-east-1_ClOoFhQj6
+        audience:
+          - 43kg19oplc27c8fj06etgokguq
 
 functions:
   addNote:
@@ -22,25 +32,34 @@ functions:
       - httpApi:
           path: /notes
           method: post
+          authorizer:
+            name: appJwtAuthorizer
   getNotes:
     handler: src/notes/getNotes.getNotes
     events:
       - httpApi:
-          path: /notes/{email}
+          path: /notes
           method: get
+          authorizer:
+            name: appJwtAuthorizer
+
   updateNote:
     handler: src/notes/updateNote.updateNote
     events:
       - httpApi:
-          path: /notes/{email}/{id}
+          path: /notes/{id}
           method: put
+          authorizer:
+            name: appJwtAuthorizer
 
   deleteNote:
     handler: src/notes/deleteNote.deleteNote
     events:
       - httpApi:
-          path: /notes/{email}/{id}
+          path: /notes/{id}
           method: delete
+          authorizer:
+            name: appJwtAuthorizer
   
 
 resources:
@@ -51,18 +70,18 @@ resources:
         AttributeDefinitions: 
           - AttributeName: id
             AttributeType: S
-          - AttributeName: email_user_login
+          - AttributeName: user_id
             AttributeType: S
         BillingMode: PAY_PER_REQUEST
         KeySchema: # Required
           - AttributeName: id
             KeyType: HASH
-          - AttributeName: email_user_login
+          - AttributeName: user_id
             KeyType: RANGE
         GlobalSecondaryIndexes:
-          - IndexName: email_index
+          - IndexName: user_index
             KeySchema: # Required
-            - AttributeName: email_user_login
+            - AttributeName: user_id
               KeyType: HASH
             - AttributeName: id
               KeyType: RANGE

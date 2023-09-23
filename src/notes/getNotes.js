@@ -1,16 +1,18 @@
 const AWS = require('aws-sdk');
+const jwt_decode = require('jwt-decode');
 
 module.exports.getNotes = async (event) => {
     try {
-        const { email } = event.pathParameters;
         const dynamodb = new AWS.DynamoDB.DocumentClient();
+        const DECODED = jwt_decode(event.headers.authorization);
+        const USER_ID = DECODED.username;
 
         const params = {
             ExpressionAttributeValues: {
-                ":email": email
+                ":user_id": USER_ID
             },
-            IndexName: "email_index",
-            KeyConditionExpression: "email_user_login = :email",
+            IndexName: "user_index",
+            KeyConditionExpression: "user_id = :user_id",
             TableName: "NotesTable"
         }
 
