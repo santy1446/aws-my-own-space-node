@@ -1,16 +1,19 @@
 const AWS = require('aws-sdk');
+const jwt_decode = require('jwt-decode');
 
 module.exports.updateNote = async (event) => {
     try {
-        const { id, email} = event.pathParameters;
+        const { id } = event.pathParameters;
         const { title, note_body } = JSON.parse(event.body);
         const dynamodb = new AWS.DynamoDB.DocumentClient();
+        const DECODED = jwt_decode(event.headers.authorization);
+        const USER_ID = DECODED.username;
 
         await dynamodb.update({
             TableName: 'NotesTable',
             Key: {
                 id,
-                email_user_login: email
+                user_id: USER_ID
             },
             UpdateExpression: 'set note_body = :note_body, title = :title',
             ExpressionAttributeValues: {

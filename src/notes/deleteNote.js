@@ -1,15 +1,18 @@
 const AWS = require('aws-sdk');
+const jwt_decode = require('jwt-decode');
 
 module.exports.deleteNote = async (event) => {
     try {
-        const { id, email} = event.pathParameters;
+        const { id } = event.pathParameters;
         const dynamodb = new AWS.DynamoDB.DocumentClient();
+        const DECODED = jwt_decode(event.headers.authorization);
+        const USER_ID = DECODED.username;
 
         await dynamodb.delete({
             TableName: 'NotesTable',
             Key: {
                 id,
-                email_user_login: email
+                user_id: USER_ID
             }
         }).promise();
 
