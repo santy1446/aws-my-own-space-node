@@ -16,6 +16,8 @@ provider:
       Resource:
         - arn:aws:dynamodb:us-east-1:798753031733:table/NotesTable
         - arn:aws:dynamodb:us-east-1:798753031733:table/NotesTable/index/user_index
+        - arn:aws:dynamodb:us-east-1:798753031733:table/ContactsTable
+        - arn:aws:dynamodb:us-east-1:798753031733:table/ContactsTable/index/user_index
   httpApi:
     authorizers:
       appJwtAuthorizer:
@@ -26,6 +28,7 @@ provider:
           - 43kg19oplc27c8fj06etgokguq
 
 functions:
+  #Notes Endpoints
   addNote:
     handler: src/notes/addNote.addNote
     events:
@@ -61,9 +64,44 @@ functions:
           authorizer:
             name: appJwtAuthorizer
   
+  #Contacts Endpoints
+  addContact:
+    handler: src/contacts/addContact.addContact
+    events:
+      - httpApi:
+          path: /contacts
+          method: post
+          authorizer:
+            name: appJwtAuthorizer
+  getContacts:
+    handler: src/contacts/getContacts.getContacts
+    events:
+      - httpApi:
+          path: /contacts
+          method: get
+          authorizer:
+            name: appJwtAuthorizer
+  updateContact:
+    handler: src/contacts/updateContact.updateContact
+    events:
+      - httpApi:
+          path: /contacts/{id}
+          method: put
+          authorizer:
+            name: appJwtAuthorizer
+
+  deleteContact:
+    handler: src/contacts/deleteContact.deleteContact
+    events:
+      - httpApi:
+          path: /contacts/{id}
+          method: delete
+          authorizer:
+            name: appJwtAuthorizer
 
 resources:
   Resources:
+    #Notes Table
     NotesTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -87,6 +125,29 @@ resources:
               KeyType: RANGE
             Projection:
               ProjectionType: ALL
-
         TableName: "NotesTable"
- 
+    #Contacts Table
+    ContactsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions: 
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: user_id
+            AttributeType: S
+        BillingMode: PAY_PER_REQUEST
+        KeySchema: # Required
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: user_id
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+          - IndexName: user_index
+            KeySchema: # Required
+            - AttributeName: user_id
+              KeyType: HASH
+            - AttributeName: id
+              KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+        TableName: "ContactsTable"
