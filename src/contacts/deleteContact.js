@@ -30,12 +30,14 @@ module.exports.deleteContact = async (event) => {
             }
         }).promise();
 
+        if (imgToDelete) {
+            await S3.deleteObject({
+                Bucket: env.AWS_S3_BUCKET_NAME,
+                Key: imgToDelete
+            }).promise();
+            
+        }
         await dynamodb.delete(PARAMS).promise();
-
-        await S3.deleteObject({
-            Bucket: env.AWS_S3_BUCKET_NAME,
-            Key: imgToDelete
-        }).promise();
 
         return {
             statusCode: 200,
