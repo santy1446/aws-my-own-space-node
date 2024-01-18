@@ -19,6 +19,7 @@ provider:
         - arn:aws:dynamodb:us-east-1:798753031733:table/ContactsTable
         - arn:aws:dynamodb:us-east-1:798753031733:table/ContactsTable/index/user_index
   httpApi:
+    cors: true
     authorizers:
       appJwtAuthorizer:
         type: jwt

@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const jwt_decode = require('jwt-decode');
+const CONSTANTS = require( "../constants");
 
 module.exports.getNotes = async (event) => {
     try {
@@ -25,6 +26,7 @@ module.exports.getNotes = async (event) => {
 
         return {
             statusCode: 200,
+            headers: CONSTANTS.HEADERS_CONFIG,
             body: JSON.stringify(response.Items)
         }
 
