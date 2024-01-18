@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const jwt_decode = require('jwt-decode');
 const { env } = require('../environments/environment');
+const CONSTANTS = require( "../constants");
 
 module.exports.deleteContact = async (event) => {
     
@@ -30,15 +31,18 @@ module.exports.deleteContact = async (event) => {
             }
         }).promise();
 
+        if (imgToDelete) {
+            await S3.deleteObject({
+                Bucket: env.AWS_S3_BUCKET_NAME,
+                Key: imgToDelete
+            }).promise();
+            
+        }
         await dynamodb.delete(PARAMS).promise();
-
-        await S3.deleteObject({
-            Bucket: env.AWS_S3_BUCKET_NAME,
-            Key: imgToDelete
-        }).promise();
 
         return {
             statusCode: 200,
+            headers: CONSTANTS.HEADERS_CONFIG,
             body: JSON.stringify({
                 message: 'contact deleted'
             })

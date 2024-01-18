@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk');
 const jwt_decode = require('jwt-decode');
+const CONSTANTS = require( "../constants");
 
 module.exports.deleteNote = async (event) => {
     try {
@@ -18,6 +19,7 @@ module.exports.deleteNote = async (event) => {
 
         return {
             statusCode: 200,
+            headers: CONSTANTS.HEADERS_CONFIG,
             body: JSON.stringify({
                 message: 'Note deleted'
             })

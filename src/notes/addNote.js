@@ -1,6 +1,7 @@
 const { v4 } = require('uuid');
 const AWS = require('aws-sdk');
 const jwt_decode = require('jwt-decode');
+const CONSTANTS = require( "../constants");
 module.exports.addNote = async (event) => {
     
     try {
@@ -25,6 +26,7 @@ module.exports.addNote = async (event) => {
 
         return {
             status: 200,
+            headers: CONSTANTS.HEADERS_CONFIG,
             body: JSON.stringify(newNote)
         }
     } catch (error) {
